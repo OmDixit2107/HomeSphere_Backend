@@ -1,41 +1,29 @@
 package com.homesphere_backend.controller;
 
 import com.homesphere_backend.DTO.LoginRequest;
+import com.homesphere_backend.DTO.LoginResponse;
 import com.homesphere_backend.entity.User;
 import com.homesphere_backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
 
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    // 1. Get all users
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
-
-    // 2. Get a single user by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
-    }
-
-    // 3. Signup (Create a new user)
+    // Signup Endpoint
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody User user) {
         if (userService.existsByEmail(user.getEmail())) {
@@ -45,22 +33,72 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully.");
     }
 
-    // 4. Login (Authenticate a user)
+    // Login Endpoint
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         boolean authenticated = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
         if (authenticated) {
-            return ResponseEntity.ok("Login successful!");
+            Optional<User> user = userService.findByEmail(loginRequest.getEmail());
+            if (user.isPresent()) {
+                HttpSession session = request.getSession(true); // Create a new session if one doesn't exist
+                session.setAttribute("email", loginRequest.getEmail());
+                // Return the role as part of the login response
+                return ResponseEntity.ok(new LoginResponse(user.get().getRole()));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse("Invalid user"));
+            }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse("Invalid credentials"));
     }
 
-    // Other CRUD operations...
 
-    // 5. Delete a user
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    // Logout Endpoint
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false); // Get the current session, but don't create a new one
+        if (session != null) {
+            session.invalidate();
+            return ResponseEntity.ok("Logout successful.");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No active session to logout.");
+    }
+
+    // Protected Endpoint
+    @GetMapping("/protected-endpoint")
+    public ResponseEntity<String> getProtectedData(HttpServletRequest request) {
+        HttpSession session = request.getSession(false); // Get the session without creating a new one
+        if (session != null && session.getAttribute("email") != null) {
+            String email = (String) session.getAttribute("email");
+            return ResponseEntity.ok("Hello, " + email + "! This is protected data.");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: Please log in.");
+    }
+
+    // Get All Users
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    // Get User by ID
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    // Delete User by ID
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        if (user != null) {
+            userService.deleteUser(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted successfully.");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
     }
 }

@@ -24,7 +24,7 @@ public class User {
 
     private String role;
 
-    private String Contact_No;
+    private String contact_No;
 
     public Long getId() {
         return id;
@@ -67,10 +67,10 @@ public class User {
     }
 
     public String getContact_No() {
-        return Contact_No;
+        return contact_No;
     }
 
     public void setContact_No(String contact_No) {
-        Contact_No = contact_No;
+        contact_No = contact_No;
     }
 }

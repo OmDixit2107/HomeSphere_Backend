@@ -4,6 +4,7 @@ import com.homesphere_backend.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -19,4 +20,6 @@ public interface UserService {
     boolean existsByEmail(String email);
 
     boolean authenticateUser(String email, String rawPassword);
+
+    Optional<User> findByEmail(String email);
 }

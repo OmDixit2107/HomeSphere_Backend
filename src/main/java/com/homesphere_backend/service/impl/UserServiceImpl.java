@@ -4,11 +4,11 @@ import com.homesphere_backend.entity.User;
 import com.homesphere_backend.repository.UserRepository;
 import com.homesphere_backend.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -40,16 +40,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existsByEmail(String email) {
-        return userRepository.findByEmail(email) != null;
+        return userRepository.existsByEmail(email);
     }
 
     @Override
     public boolean authenticateUser(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
         if (user != null) {
             // Check if the raw password matches the encoded password
-            return passwordEncoder.matches(rawPassword, user.getPassword());
+            return passwordEncoder.matches(rawPassword, user.get().getPassword());
         }
         return false;
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+
 }
