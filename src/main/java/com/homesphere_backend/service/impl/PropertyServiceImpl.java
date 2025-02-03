@@ -5,7 +5,9 @@ import com.homesphere_backend.repository.PropertyRepository;
 import com.homesphere_backend.service.PropertyService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +18,10 @@ public class PropertyServiceImpl implements PropertyService {
     private final PropertyRepository propertyRepository;
 
     @Override
-    public Property createProperty(Property property) {
+    public Property createProperty(Property property, MultipartFile imageFile) throws IOException {
+        property.setImageName(imageFile.getOriginalFilename());
+        property.setImageType(imageFile.getContentType());
+        property.setImageData(imageFile.getBytes());
         return propertyRepository.save(property);
     }
 

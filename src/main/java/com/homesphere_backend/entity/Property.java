@@ -1,9 +1,9 @@
 package com.homesphere_backend.entity;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 @Entity
 @Table(name = "properties")
@@ -16,7 +16,6 @@ public class Property {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Foreign key reference to User entity
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,13 +33,22 @@ public class Property {
     private String location;
 
     @Column(nullable = false)
-    private String type; // "buy" or "rent"
+    private String type;
 
     @Column(nullable = false)
-    private String status; // "available", "sold", "rented"
+    private String status;
 
     @Column(nullable = false)
     private Boolean emiAvailable;
+
+//    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+//    private List<PropertyImage> images;
+
+    private String imageName;
+    private String imageType;
+    @Lob
+    private byte[] imageData;
+
 
     // Constructor
     public Property(User user, String title, String desc, Float price, String location, String type, String status, Boolean emiAvailable) {

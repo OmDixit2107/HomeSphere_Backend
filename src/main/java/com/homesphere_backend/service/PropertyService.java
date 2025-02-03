@@ -1,13 +1,16 @@
 package com.homesphere_backend.service;
 
 import com.homesphere_backend.entity.Property;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public interface PropertyService {
 
     // ✅ Create a new property
-    Property createProperty(Property property);
+    Property createProperty(Property property, MultipartFile imageFile) throws IOException;
 
     // ✅ Retrieve all properties
     List<Property> getAllProperties();

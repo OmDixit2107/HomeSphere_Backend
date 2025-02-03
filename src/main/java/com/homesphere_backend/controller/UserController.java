@@ -53,15 +53,15 @@ public class UserController {
 
 
     // Logout Endpoint
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
-        HttpSession session = request.getSession(false); // Get the current session, but don't create a new one
-        if (session != null) {
-            session.invalidate();
-            return ResponseEntity.ok("Logout successful.");
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No active session to logout.");
-    }
+//    @PostMapping("/logout")
+//    public ResponseEntity<String> logout(HttpServletRequest request) {
+//        HttpSession session = request.getSession(false); // Get the current session, but don't create a new one
+//        if (session != null) {
+//            session.invalidate();
+//            return ResponseEntity.ok("Logout successful.");
+//        }
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No active session to logout.");
+//    }
 
     // Protected Endpoint
     @GetMapping("/protected-endpoint")
@@ -89,6 +89,13 @@ public class UserController {
             return ResponseEntity.ok(user);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    @GetMapping("/users/by-email/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        Optional<User> user = userService.findByEmail(email);
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // Delete User by ID
