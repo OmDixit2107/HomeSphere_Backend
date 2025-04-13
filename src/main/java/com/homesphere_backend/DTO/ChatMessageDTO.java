@@ -6,14 +6,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ChatMessageDTO {
+
     private String content;
-    private String sender;
-    private String recipient;
+
+    // Sender and recipient should be represented as IDs
+    private Long senderId;
+    private Long recipientId;
+
     private MessageType type;
-    private String timestamp;
+
+    private LocalDateTime timestamp;
 }

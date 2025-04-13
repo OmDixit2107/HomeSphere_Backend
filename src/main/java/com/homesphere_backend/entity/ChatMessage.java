@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class ChatMessage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,10 +22,15 @@ public class ChatMessage {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private String sender;
+    // Define sender relationship
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "sender_id", referencedColumnName = "id", nullable = false)
+    private User sender;
 
-    private String recipient;
+    // Define recipient relationship
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "recipient_id", referencedColumnName = "id", nullable = false)
+    private User recipient;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -35,5 +41,11 @@ public class ChatMessage {
 
     public enum MessageType {
         CHAT, JOIN, LEAVE
+    }
+
+    // Automatically set the timestamp before persisting
+    @PrePersist
+    protected void onCreate() {
+        this.timestamp = LocalDateTime.now();
     }
 }
