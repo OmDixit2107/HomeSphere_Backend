@@ -2,6 +2,7 @@ package com.homesphere_backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.homesphere_backend.entity.Property;
+import com.homesphere_backend.entity.User;
 import com.homesphere_backend.service.PropertyService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class PropertyController {
 
     private final PropertyService propertyService;
 
-    // Create a new property
+//     Create a new property
     @PostMapping("/create")
     public ResponseEntity<?> createProperty(
             @RequestPart("property") String propertyJson,
@@ -39,6 +40,7 @@ public class PropertyController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     // Get all properties
     @GetMapping
@@ -83,12 +85,17 @@ public class PropertyController {
         return ResponseEntity.ok(updated);
     }
 
-    // Delete a property
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProperty(@PathVariable Long id) {
-        propertyService.deleteProperty(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getChatUsers(@RequestParam Long ownerId) {
+        List<User> users = propertyService.getChatUsersForOwner(ownerId);
+        return ResponseEntity.ok(users);
     }
+    // Delete a property
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deleteProperty(@PathVariable Long id) {
+//        propertyService.deleteProperty(id);
+//        return ResponseEntity.noContent().build();
+//    }
 
     // Check if EMI is available for a property
     @GetMapping("/{id}/emi")
@@ -112,4 +119,12 @@ public class PropertyController {
                 .contentType(MediaType.valueOf(property.get().getImageType()))
                 .body(imageFile);
     }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePropertie(@PathVariable Long id) {
+        propertyService.deleteProperty(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

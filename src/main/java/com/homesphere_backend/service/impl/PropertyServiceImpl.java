@@ -1,6 +1,7 @@
 package com.homesphere_backend.service.impl;
 
 import com.homesphere_backend.entity.Property;
+import com.homesphere_backend.entity.User;
 import com.homesphere_backend.repository.PropertyRepository;
 import com.homesphere_backend.service.PropertyService;
 import lombok.AllArgsConstructor;
@@ -80,6 +81,11 @@ public class PropertyServiceImpl implements PropertyService {
                 .map(Property::getEmiAvailable)
                 .orElse(false);
     }
+
+    public List<User> getChatUsersForOwner(Long ownerId) {
+        return propertyRepository.findUsersWhoChattedWith(ownerId);
+    }
+
 
     @Override
     public List<Property> getPropertiesByPriceRange(Float minPrice, Float maxPrice) {

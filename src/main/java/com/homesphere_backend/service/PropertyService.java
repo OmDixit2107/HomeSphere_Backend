@@ -1,6 +1,7 @@
 package com.homesphere_backend.service;
 
 import com.homesphere_backend.entity.Property;
+import com.homesphere_backend.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -38,6 +39,9 @@ public interface PropertyService {
 
     // ✅ Check if EMI is available for a given property
     boolean isEmiAvailable(Long id);
+
+    public List<User> getChatUsersForOwner(Long ownerId);
+
 
     // ✅ Filter properties based on price range
     List<Property> getPropertiesByPriceRange(Float minPrice, Float maxPrice);
